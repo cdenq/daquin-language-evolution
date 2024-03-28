@@ -21,6 +21,8 @@ In general, this means that this model is able to predict the class correctly 93
 
 This project offers a modular and flexible starting point for future work. Explanations and conclusion analyses are included in my `.ipynb` notebooks, along with suggestions at pertinent points during the workflow for future suggestions.
 
+<img src="outputs/model_outputs/roc_curve_random_forest_tfidf.png">
+
 # Getting started
 
 Clone repo
