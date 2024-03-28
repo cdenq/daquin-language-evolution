@@ -1,8 +1,8 @@
 #----------------------------------------------------
 # Imports
 #----------------------------------------------------
-from modules import imports
-from modules import helper
+import imports
+import helper
 
 #----------------------------------------------------
 # Helper Functions for EDA
@@ -141,14 +141,8 @@ def graph_histogram(values: imports.pd.Series, value_label: str) -> None:
     imports.plt.ylabel("Frequency")
     imports.plt.grid("True", alpha=imports.DEFAULT_GRID_ALPHA)
 
-    min_score = min(values)
-    max_score = max(values)
-    num_scores = len(values)
-    num_bins = helper.calc_num_bins(num_scores)
-    bin_edges = imports.np.linspace(min_score, max_score, num_bins)
-
     # Graphing
-    imports.plt.hist(values, alpha=imports.DEFAULT_GRAPH_ALPHA, bins=bin_edges)
+    imports.plt.hist(values, alpha=imports.DEFAULT_GRAPH_ALPHA, bins='auto')
 
     # Post Graph Formatting & Saving
     imports.plt.tight_layout()

@@ -5,38 +5,48 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from nltk import ngrams
 
-# Computation
+# Computation / String
 import math
 import numpy as np
-from statsmodels.stats.outliers_influence import variance_inflation_factor
+import re
 
 # Formatting / Outputting
 from IPython.display import Image
 import dataframe_image as dfi
 
-# Modeling (Logistic Regression)
+# Data Preprocessing
+import nltk
+from nltk.stem import WordNetLemmatizer
+from nltk.corpus import stopwords
+nltk.download("stopwords")
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from imblearn.over_sampling import SMOTE
 from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler, OneHotEncoder
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report, confusion_matrix, roc_curve, auc
+from sklearn.preprocessing import StandardScaler, LabelBinarizer
 
-# Modeling (Sentiment Analysis)
-import nltk
-nltk.download('vader_lexicon')
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
+# Data Preprocessing (NLP Vectorization)
+nltk.download("vader_lexicon")
+from gensim.models import Word2Vec
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+# Modeling
+from sklearn.multiclass import OneVsRestClassifier
+from sklearn.ensemble import RandomForestClassifier
+
+# Modeling (Evaluation)
+from sklearn.metrics import classification_report, confusion_matrix, f1_score, roc_curve, auc, roc_auc_score, make_scorer
 
 # Deployment
 import joblib
-import streamlit as st
 
 #----------------------------------------------------
 # Global Variables
 #----------------------------------------------------
 RANDOM_SEED = 42
-SERIOUS_VIOLATION_SCORE_THRESHOLD = 10
-CHARS_TO_REMOVE = ["[", "]", "'", " ", "/", "-", "(", ")", "&"]
+CHARS_TO_REMOVE = ["[", "]", "'", '"', "/", "(", ")", "&", ",", ".", ";", "?", "!", "{", "}", "*"]
 
 #----------------------------------------------------
 # FILEPATH Variables
@@ -60,7 +70,7 @@ DEFAULT_MARKER_SIZE = 8
 DEFAULT_BAR_WIDTH = 0.25
 DEFAULT_LONG_FIG_SIZE = (6, 4)
 DEFAULT_TALL_FIG_SIZE = (4, 6)
-DEFAULT_SQUARE_FIG_SIZE = (4, 4)
+DEFAULT_SQUARE_FIG_SIZE = (6, 6)
 DEFAULT_BIG_FIG_SIZE = (8, 6)
 
 DEFAULT_TRAIN = 0.75

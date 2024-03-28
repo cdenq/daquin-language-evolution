@@ -1,7 +1,7 @@
 #----------------------------------------------------
 # Imports
 #----------------------------------------------------
-from modules import imports
+import imports
 
 #----------------------------------------------------
 # Helper Functions
@@ -22,41 +22,26 @@ def extract_sentiment_score(text: str) -> float:
     analyzer = imports.SentimentIntensityAnalyzer()
     return analyzer.polarity_scores(text)["compound"]
 
-def extract_duration_days(start: str, end: str) -> int:
+def remove_emoji(text: str) -> str:
     """
-    Calculates the number of days that has occured between the start and end
+    Removes the emojis from a text
 
-    start -> str
-        Given starting date
+    text -> str
+        Given input text
 
-    end -> str
-        Given ending date
-
-    Returns -> int
-        Returns the number of days that has elapsed
+    Returns -> str
+        Returns de-emojied text
 
     Example
-        extract_duration_days("1/1/2023", "1/2/2023")
+        remove_emoji("I love this! \U0001f602")
     """
-    start = imports.pd.to_datetime(start)
-    end = imports.pd.to_datetime(end)
-    duration = end - start
-    return int(duration.days)
-
-def calc_num_bins(num_scores: int) -> int:
-    """
-    Calculates the optimal number of histogram bins using Sturge's Rule
-
-    num_scores -> int
-        Given total number of datapoints that are considered in the histogram
-
-    Returns -> int
-        Returns the number of bins that optimally organizes the histogram
-
-    Example
-        calc_num_bins(500)
-    """
-    return int(1 + 3.322 * imports.math.log(num_scores))
+    regrex_pattern = imports.re.compile(pattern = "["
+                                        u"\U0001F600-\U0001F64F"  # emoticons
+                                        u"\U0001F300-\U0001F5FF"  # symbols & pictographs
+                                        u"\U0001F680-\U0001F6FF"  # transport & map symbols
+                                        u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
+                                        "]+", flags = imports.re.UNICODE)
+    return regrex_pattern.sub(r'',text)
 
 def calc_limit_lwrbound(num_scores: list) -> float:
     """
@@ -76,50 +61,31 @@ def calc_limit_lwrbound(num_scores: list) -> float:
     range_value = max_value - min_value
     return min_value - range_value * 0.2
 
-def get_season(date: str, mode: str="Northern") -> str:
+def get_ngrams(series, n) -> dict:
     """
-    Calculates the season of a month/day
+    Extracts a dictionary of the n-grams in a given text
 
-    date -> str
-        Given date to convert into a seaon
+    text -> Pandas.Series
+        The given text
 
-    mode -> str
-        Determines whether to use the Northern or Southern Hemisphere calculation
-
-    Return -> str
-        Returns the season
-        
-    Example
-        get_season("12/1/23")
-    """
-    # Check for correct mode
-    options = ["Northern", "Southern"]
-    if mode not in options:
-        raise ValueError(f"{mode} invalid; must be within {options}.")
-
-    # Convert the date to a datetime object
-    date = imports.pd.to_datetime(date)
+    n -> int
+        The n in n-grams
     
-    # Source: https://en.wikipedia.org/wiki/Season#:~:text=According%20to%20this%20definition%2C%20for,and%20winter%20on%201%20June.
-    if mode == "Northern":
-        if (date.month >= 3 and date.month >= 1) and (date.month <= 5 and date.day <= 31):
-            season = "Spring"
-        elif (date.month >= 6 and date.month >= 1) and (date.month <= 8 and date.day <= 31):
-            season = "Summer"
-        elif (date.month >= 9 and date.month >= 1) and (date.month <= 11 and date.day <= 30):
-            season = "Fall"
-        else:
-            season = "Winter"
-    else: # Southern
-        if (date.month >= 3 and date.month >= 1) and (date.month <= 5 and date.day <= 31):
-            season = "Fall"
-        elif (date.month >= 6 and date.month >= 1) and (date.month <= 8 and date.day <= 31):
-            season = "Winter"
-        elif (date.month >= 9 and date.month >= 1) and (date.month <= 11 and date.day <= 30):
-            season = "Spring"
-        else:
-            season = "Summer"
-    return season
+    Returns -> dict
+        The frequency dictionary of the n-gram
+
+    Example
+        get_ngrams(df["Text"], 3)
+    """
+    ngram_dict = {}
+    for text_row in series:
+        ngrams_list = list(imports.ngrams(text_row.split(" "), n))
+        for gram in ngrams_list:
+            if gram in ngram_dict:
+                ngram_dict[gram] += 1
+            else:
+                ngram_dict[gram] = 1
+    return ngram_dict
 
 #----------------------------------------------------
 # Main
